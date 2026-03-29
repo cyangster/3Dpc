@@ -12,7 +12,7 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
   const getComponentIcon = (componentName) => {
     const icons = {
       motherboard: "🔌",
-      cpu: "🧠",
+      cpu: "💿",
       cpuCooler: "❄️",
       ram: "💾",
       gpu: "🎮",
