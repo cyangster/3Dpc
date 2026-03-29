@@ -1,6 +1,6 @@
 // src/components/InfoPanel.jsx
 import React from 'react';
-import { componentData } from '../data/ComponentData.js';
+import { componentData, componentShortLabels } from '../data/ComponentData.js';
 
 const InfoPanel = ({ selectedComponent, onClose }) => {
   if (!selectedComponent || !componentData[selectedComponent]) {
@@ -8,21 +8,6 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
   }
 
   const component = componentData[selectedComponent];
-
-  const getComponentIcon = (componentName) => {
-    const icons = {
-      motherboard: "🔌",
-      cpu: "🧠",
-      cpuCooler: "❄️",
-      ram: "💾",
-      gpu: "🎮",
-      storage: "💿",
-      psu: "⚡",
-      case: "📦",
-      fans: "🌪️"
-    };
-    return icons[componentName] || "🔧";
-  };
 
   const getPerformanceMetrics = (componentName) => {
     const metrics = {
@@ -47,7 +32,9 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
         <div className="flex justify-between items-start">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">{getComponentIcon(selectedComponent)}</span>
+            <span className="rounded-md bg-white/15 px-2.5 py-1 text-sm font-semibold tracking-wide text-white">
+              {componentShortLabels[selectedComponent] ?? '—'}
+            </span>
             <div>
               <h2 className="text-xl font-bold text-white">
                 {component.name}
@@ -126,8 +113,7 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
 
         {/* Fun Fact */}
         <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 p-4 rounded-lg border border-orange-500/30">
-          <h4 className="text-orange-400 font-semibold mb-2 flex items-center">
-            <span className="mr-2">💡</span>
+          <h4 className="text-orange-400 font-semibold mb-2">
             Did You Know?
           </h4>
           <p className="text-gray-300 text-sm leading-relaxed">
@@ -137,8 +123,7 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
 
         {/* Component Compatibility */}
         <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-          <h4 className="text-cyan-400 font-semibold mb-3 flex items-center">
-            <span className="mr-2">🔗</span>
+          <h4 className="text-cyan-400 font-semibold mb-3">
             Compatibility Notes
           </h4>
           <div className="text-sm text-gray-300 space-y-2">
@@ -174,8 +159,7 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
 
         {/* Quick Tips */}
         <div className="mt-6 p-4 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
-          <h4 className="text-indigo-400 font-semibold mb-3 flex items-center">
-            <span className="mr-2">⚡</span>
+          <h4 className="text-indigo-400 font-semibold mb-3">
             Pro Tips
           </h4>
           <div className="text-sm text-gray-300 space-y-2">

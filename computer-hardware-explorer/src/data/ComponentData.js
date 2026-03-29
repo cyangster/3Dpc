@@ -127,6 +127,19 @@ export const componentData = {
   }
 };
 
+// Short labels for UI (no emoji)
+export const componentShortLabels = {
+  motherboard: 'MB',
+  cpu: 'CPU',
+  cpuCooler: 'Cooler',
+  ram: 'RAM',
+  gpu: 'GPU',
+  storage: 'SSD',
+  psu: 'PSU',
+  case: 'Case',
+  fans: 'Fans'
+};
+
 // Component categories for organization
 export const componentCategories = {
   processing: ['cpu', 'gpu'],
