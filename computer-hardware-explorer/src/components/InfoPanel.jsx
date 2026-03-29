@@ -58,6 +58,7 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
             </div>
           </div>
           <button 
+            type="button"
             onClick={onClose}
             className="text-white hover:text-red-300 transition-colors text-2xl font-bold"
             aria-label="Close panel"

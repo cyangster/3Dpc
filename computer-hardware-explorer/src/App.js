@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Scene3D } from './utils/Scene3D.js';
 import InfoPanel from './components/InfoPanel.jsx';
 import { componentData, componentCategories } from './data/ComponentData.js';
-import './styles/global.css';
 
 const Computer3DExplorer = () => {
   const mountRef = useRef(null);
@@ -194,6 +193,7 @@ const Computer3DExplorer = () => {
                     {components.map(comp => (
                       <button
                         key={comp}
+                        type="button"
                         onClick={() => setSelectedComponent(comp)}
                         style={{
                           padding: '0.25rem 0.5rem',
