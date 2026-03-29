@@ -1,5 +1,6 @@
 // src/utils/Scene3D.js
 import * as THREE from 'three';
+import { componentColors } from '../data/ComponentData.js';
 
 export class Scene3D {
   constructor(container) {
@@ -14,25 +15,11 @@ export class Scene3D {
     this.originalMaterials = new Map();
     this.interactiveObjects = [];
     
-    // Pointer / touch — unified model
-    this.pointerDown = false;
-    this.activePointerId = null;
-    this.pointerDownClient = { x: 0, y: 0 };
-    this.previousPointerClient = { x: 0, y: 0 };
-    this.accumulatedDragPx = 0;
-    this.isRotatingModel = false;
-    this.dragThresholdPx = 8;
-    this.tapMaxPx = 14;
-
-    // Smoothed rotation (targets updated while dragging; eased in animate)
-    this.rotationTarget = { x: 0, y: 0 };
-    this.rotationSensitivity = 0.0042;
-    this.rotationLerp = 0.18;
-    this.maxRotationX = Math.PI / 2.15;
-
-    this.reducedMotion = typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+    // Click and drag variables
+    this.isDragging = false;
+    this.previousMousePosition = { x: 0, y: 0 };
+    this.rotationSpeed = 0.005;
+    
     this.init();
   }
 
@@ -67,7 +54,6 @@ export class Scene3D {
       alpha: true 
     });
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.domElement.style.touchAction = 'none';
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -111,8 +97,6 @@ export class Scene3D {
     this.createCase();
 
     this.scene.add(this.computerGroup);
-    this.rotationTarget.x = this.computerGroup.rotation.x;
-    this.rotationTarget.y = this.computerGroup.rotation.y;
   }
 
   createCase() {
@@ -402,180 +386,70 @@ export class Scene3D {
     this.computerGroup.add(rearFan);
   }
 
-  getClientCoords(event) {
-    if (typeof event.clientX === 'number' && typeof event.clientY === 'number') {
-      return { x: event.clientX, y: event.clientY };
-    }
-    if (event.touches && event.touches.length > 0) {
-      const t = event.touches[0];
-      return { x: t.clientX, y: t.clientY };
-    }
-    if (event.changedTouches && event.changedTouches.length > 0) {
-      const t = event.changedTouches[0];
-      return { x: t.clientX, y: t.clientY };
-    }
-    return { x: 0, y: 0 };
-  }
-
-  updateNdcFromClient(clientX, clientY) {
-    const rect = this.container.getBoundingClientRect();
-    this.mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    this.mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-  }
-
-  pickComponentAt(clientX, clientY) {
-    this.updateNdcFromClient(clientX, clientY);
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-    const intersects = this.raycaster.intersectObjects(this.interactiveObjects, false);
-    if (intersects.length > 0) {
-      const object = intersects[0].object;
-      if (object.userData.component) {
-        return object.userData.component;
-      }
-    }
-    return null;
-  }
-
-  updateHoverFromClient(clientX, clientY) {
-    this.updateNdcFromClient(clientX, clientY);
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-    const intersects = this.raycaster.intersectObjects(this.interactiveObjects, false);
-
-    if (this.hoveredObject) {
-      this.resetObjectMaterial(this.hoveredObject);
-      this.hoveredObject = null;
-    }
-
-    if (intersects.length > 0) {
-      const object = intersects[0].object;
-      if (object.userData.component) {
-        this.hoveredObject = object;
-        this.highlightObject(object);
-        return object.userData.component;
-      }
-    }
-    return null;
-  }
-
-  onPointerDown(event) {
-    if (event.button != null && event.button !== 0) return;
-    if (this.activePointerId != null && event.pointerId !== this.activePointerId) return;
-
-    const { x, y } = this.getClientCoords(event);
-    this.pointerDown = true;
-    this.activePointerId = event.pointerId ?? 0;
-    this.pointerDownClient = { x, y };
-    this.previousPointerClient = { x, y };
-    this.accumulatedDragPx = 0;
-    this.isRotatingModel = false;
+  // Click and drag interaction methods
+  onMouseDown(event) {
+    this.isDragging = true;
+    this.previousMousePosition = {
+      x: event.clientX,
+      y: event.clientY
+    };
     this.container.style.cursor = 'grabbing';
-
-    try {
-      if (event.target?.setPointerCapture) {
-        event.target.setPointerCapture(event.pointerId);
-      }
-    } catch {
-      /* ignore */
-    }
   }
 
-  onPointerMove(event) {
-    if (
-      this.pointerDown &&
-      this.activePointerId != null &&
-      typeof event.pointerId === 'number' &&
-      event.pointerId !== this.activePointerId
-    ) {
-      return null;
-    }
-
-    const { x, y } = this.getClientCoords(event);
-    if (this.pointerDown && this.computerGroup) {
-      const dx = x - this.previousPointerClient.x;
-      const dy = y - this.previousPointerClient.y;
-      const stepDist = Math.hypot(dx, dy);
-      this.accumulatedDragPx += stepDist;
-
-      if (!this.isRotatingModel && this.accumulatedDragPx >= this.dragThresholdPx) {
-        this.isRotatingModel = true;
-      }
-
-      if (this.isRotatingModel) {
-        if (event.cancelable) event.preventDefault();
-        this.rotationTarget.y += dx * this.rotationSensitivity;
-        this.rotationTarget.x += dy * this.rotationSensitivity;
-        this.rotationTarget.x = THREE.MathUtils.clamp(
-          this.rotationTarget.x,
-          -this.maxRotationX,
-          this.maxRotationX
-        );
-        this.previousPointerClient = { x, y };
-        return null;
-      }
-
-      this.previousPointerClient = { x, y };
-      return null;
-    }
-
-    return this.updateHoverFromClient(x, y);
-  }
-
-  /**
-   * Returns component id if this was a tap (not a rotate drag), else null.
-   */
-  onPointerUp(event) {
-    if (
-      this.pointerDown &&
-      this.activePointerId != null &&
-      typeof event.pointerId === 'number' &&
-      event.pointerId !== this.activePointerId
-    ) {
-      return null;
-    }
-
+  onMouseUp(event) {
+    this.isDragging = false;
     this.container.style.cursor = 'grab';
-
-    const { x, y } = this.getClientCoords(event);
-    let selected = null;
-
-    if (this.pointerDown && !this.isRotatingModel && this.accumulatedDragPx <= this.tapMaxPx) {
-      selected = this.pickComponentAt(x, y);
-    }
-
-    this.pointerDown = false;
-    this.activePointerId = null;
-    this.isRotatingModel = false;
-    this.accumulatedDragPx = 0;
-
-    try {
-      if (event.target?.releasePointerCapture) {
-        event.target.releasePointerCapture(event.pointerId);
-      }
-    } catch {
-      /* ignore */
-    }
-
-    if (!selected) {
-      this.updateHoverFromClient(x, y);
-    }
-    return selected;
   }
 
-  onPointerLeave() {
-    if (!this.pointerDown) {
+  onMouseMove(event) {
+    const rect = this.container.getBoundingClientRect();
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    if (this.isDragging && this.computerGroup) {
+      // Calculate mouse movement delta
+      const deltaMove = {
+        x: event.clientX - this.previousMousePosition.x,
+        y: event.clientY - this.previousMousePosition.y
+      };
+
+      // Rotate computer based on mouse movement
+      this.computerGroup.rotation.y += deltaMove.x * this.rotationSpeed;
+      this.computerGroup.rotation.x += deltaMove.y * this.rotationSpeed;
+
+      // Update previous mouse position
+      this.previousMousePosition = {
+        x: event.clientX,
+        y: event.clientY
+      };
+    } else {
+      // Handle hover detection when not dragging
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      const intersects = this.raycaster.intersectObjects(this.interactiveObjects, false);
+
+      // Reset previous hover
       if (this.hoveredObject) {
         this.resetObjectMaterial(this.hoveredObject);
         this.hoveredObject = null;
       }
+
+      if (intersects.length > 0) {
+        const object = intersects[0].object;
+        if (object.userData.component) {
+          this.hoveredObject = object;
+          this.highlightObject(object);
+          return object.userData.component;
+        }
+      }
     }
+    return null;
   }
 
-  isPressed() {
-    return this.pointerDown;
-  }
-
-  /** @deprecated use onPointerUp + pick; kept for callers that still use click */
-  onMouseClick() {
+  onMouseClick(event) {
+    // Only trigger component selection if not dragging
+    if (!this.isDragging && this.hoveredObject && this.hoveredObject.userData.component) {
+      return this.hoveredObject.userData.component;
+    }
     return null;
   }
 
@@ -583,12 +457,10 @@ export class Scene3D {
     if (!this.originalMaterials.has(object.id)) {
       this.originalMaterials.set(object.id, object.material.clone());
     }
-
+    
     const highlightMaterial = object.material.clone();
-    highlightMaterial.color.multiplyScalar(1.4);
-    if (highlightMaterial.emissive) {
-      highlightMaterial.emissive.setRGB(0.28, 0.38, 0.5);
-    }
+    highlightMaterial.color.multiplyScalar(1.8);
+    highlightMaterial.emissive.setHex(0x444444);
     object.material = highlightMaterial;
   }
 
@@ -600,15 +472,6 @@ export class Scene3D {
 
   animate() {
     requestAnimationFrame(() => this.animate());
-
-    if (this.computerGroup) {
-      const t = this.reducedMotion ? 1 : this.rotationLerp;
-      this.computerGroup.rotation.x +=
-        (this.rotationTarget.x - this.computerGroup.rotation.x) * t;
-      this.computerGroup.rotation.y +=
-        (this.rotationTarget.y - this.computerGroup.rotation.y) * t;
-    }
-
     this.renderer.render(this.scene, this.camera);
   }
 

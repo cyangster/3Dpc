@@ -42,55 +42,33 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
   const metrics = getPerformanceMetrics(selectedComponent);
 
   return (
-    <div
-      className="info-panel-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="info-panel-title"
-      onClick={onClose}
-    >
-      <div
-        className="info-panel-sheet w-full max-w-md xl:max-w-sm bg-gray-800 shadow-2xl overflow-hidden xl:rounded-none rounded-t-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 pt-3 pb-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="mb-3 flex w-full min-h-12 items-center justify-center gap-2 rounded-lg bg-white/15 px-4 py-2.5 text-base font-semibold text-white hover:bg-white/25 active:bg-white/30 xl:hidden"
-          >
-            <span aria-hidden>←</span> Back to 3D model
-          </button>
-          <div className="flex justify-between items-start gap-2">
-            <div className="flex items-center space-x-3 min-w-0">
-              <span className="text-3xl shrink-0">{getComponentIcon(selectedComponent)}</span>
-              <div className="min-w-0">
-                <h2 id="info-panel-title" className="text-xl font-bold text-white truncate">
-                  {component.name}
-                </h2>
-                <p className="text-blue-100 text-sm opacity-90">
-                  Hardware Component
-                </p>
-              </div>
+    <div className="w-96 bg-gray-800 shadow-2xl overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center space-x-3">
+            <span className="text-3xl">{getComponentIcon(selectedComponent)}</span>
+            <div>
+              <h2 className="text-xl font-bold text-white">
+                {component.name}
+              </h2>
+              <p className="text-blue-100 text-sm opacity-90">
+                Hardware Component
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="shrink-0 flex h-12 w-12 items-center justify-center rounded-lg text-white hover:bg-white/15 hover:text-red-200 transition-colors text-3xl font-light leading-none"
-              aria-label="Close panel"
-            >
-              ×
-            </button>
           </div>
-          <p className="mt-2 text-blue-100/90 text-xs hidden xl:block">
-            Press Esc or click × to return to the model.
-          </p>
-          <p className="mt-2 text-blue-100/90 text-xs xl:hidden">
-            Tap outside this card or use Back to return to the model.
-          </p>
+          <button 
+            onClick={onClose}
+            className="text-white hover:text-red-300 transition-colors text-2xl font-bold"
+            aria-label="Close panel"
+          >
+            ×
+          </button>
         </div>
+      </div>
 
-        <div className="info-panel-scroll p-6 overflow-y-auto xl:max-h-[calc(100vh-8rem)] max-h-none">
+      {/* Content */}
+      <div className="p-6 overflow-y-auto max-h-screen">
         {/* Performance Score */}
         {metrics && (
           <div className="mb-6 p-4 bg-gray-700 rounded-lg">
@@ -232,7 +210,6 @@ const InfoPanel = ({ selectedComponent, onClose }) => {
             )}
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
