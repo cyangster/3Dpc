@@ -62,9 +62,8 @@ const Computer3DExplorer = () => {
       }
     };
 
-    const pointerMoveOptions = { passive: false };
     el.addEventListener('pointerdown', handlePointerDown);
-    el.addEventListener('pointermove', handlePointerMove, pointerMoveOptions);
+    el.addEventListener('pointermove', handlePointerMove, { passive: false });
     el.addEventListener('pointerup', handlePointerUp);
     el.addEventListener('pointerleave', handlePointerLeave);
     el.addEventListener('pointercancel', handlePointerCancel);
@@ -76,7 +75,7 @@ const Computer3DExplorer = () => {
 
     return () => {
       el.removeEventListener('pointerdown', handlePointerDown);
-      el.removeEventListener('pointermove', handlePointerMove, pointerMoveOptions);
+      el.removeEventListener('pointermove', handlePointerMove);
       el.removeEventListener('pointerup', handlePointerUp);
       el.removeEventListener('pointerleave', handlePointerLeave);
       el.removeEventListener('pointercancel', handlePointerCancel);
