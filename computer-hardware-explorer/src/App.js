@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Scene3D } from './utils/Scene3D.js';
 import InfoPanel from './components/InfoPanel.jsx';
-import { componentData, componentCategories, componentShortLabels } from './data/ComponentData.js';
+import { componentData, componentCategories } from './data/ComponentData.js';
 
 const Computer3DExplorer = () => {
   const mountRef = useRef(null);
@@ -104,6 +104,7 @@ const Computer3DExplorer = () => {
               </p>
             </div>
             <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>🖥️</div>
               <div style={{ fontSize: '0.875rem', color: '#a0aec0' }}>Educational Platform</div>
             </div>
           </div>
@@ -124,6 +125,7 @@ const Computer3DExplorer = () => {
               zIndex: 10
             }}>
               <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '2.25rem', marginBottom: '1rem' }}>🖥️</div>
                 <div style={{ fontSize: '1.25rem', color: '#60a5fa', marginBottom: '0.5rem' }}>
                   Loading 3D Computer Model...
                 </div>
@@ -237,18 +239,16 @@ const Computer3DExplorer = () => {
               pointerEvents: 'none' // Prevent interfering with drag
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.05em',
-                    color: '#93c5fd',
-                    background: 'rgba(96, 165, 250, 0.2)',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '0.25rem',
-                  }}
-                >
-                  {componentShortLabels[hoveredComponent] ?? '—'}
+                <span style={{ fontSize: '1.5rem' }}>
+                  {hoveredComponent === 'motherboard' && '🔌'}
+                  {hoveredComponent === 'cpu' && '🧠'}
+                  {hoveredComponent === 'cpuCooler' && '❄️'}
+                  {hoveredComponent === 'ram' && '💾'}
+                  {hoveredComponent === 'gpu' && '🎮'}
+                  {hoveredComponent === 'storage' && '💿'}
+                  {hoveredComponent === 'psu' && '⚡'}
+                  {hoveredComponent === 'case' && '📦'}
+                  {hoveredComponent === 'fans' && '🌪️'}
                 </span>
                 <div>
                   <div style={{ color: '#60a5fa', fontWeight: '600' }}>
@@ -280,7 +280,11 @@ const Computer3DExplorer = () => {
               color: '#60a5fa', 
               fontWeight: '600', 
               marginBottom: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
+              <span>🎮</span>
               Controls
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -360,6 +364,7 @@ const Computer3DExplorer = () => {
                 border: '1px solid #718096',
                 backdropFilter: 'blur(10px)'
               }}>
+                <div style={{ fontSize: '3.75rem', marginBottom: '1rem' }}>🖥️</div>
                 <h2 style={{
                   fontSize: '1.5rem',
                   fontWeight: 'bold',
