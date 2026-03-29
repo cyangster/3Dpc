@@ -84,7 +84,143 @@ button:focus,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Mobile responsiveness */
+/* Explorer layout — tablet / iPad / phone */
+.explorer-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.explorer-header {
+  flex-shrink: 0;
+}
+
+.explorer-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.viewer-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: min(55dvh, 480px);
+}
+
+.viewer-mount {
+  width: 100%;
+  height: 100%;
+  min-height: min(50dvh, 420px);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 1280px) {
+  .viewer-wrap {
+    min-height: 0;
+  }
+
+  .viewer-mount {
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+@media (max-width: 1279px) {
+  .explorer-main {
+    flex-direction: column;
+  }
+
+  .viewer-wrap {
+    flex: 1 1 auto;
+  }
+
+  .quick-access-panel {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: auto;
+    max-width: min(92vw, 18rem);
+    max-height: 42dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .controls-guide {
+    display: none;
+  }
+
+  .stats-overlay {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .explorer-header-inner {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem;
+  }
+
+  .explorer-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .explorer-header p {
+    font-size: 0.9375rem !important;
+  }
+}
+
+/* Info panel: sidebar on desktop, sheet + dimmer on tablet */
+.info-panel-overlay {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+}
+
+.info-panel-sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+  overflow: hidden;
+}
+
+@media (max-width: 1279px) {
+  .info-panel-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    align-items: stretch;
+    justify-content: flex-end;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 0;
+    max-height: none;
+  }
+
+  .info-panel-sheet {
+    max-height: 88dvh;
+    border-radius: 1rem 1rem 0 0;
+    overflow: hidden;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .info-panel-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(88dvh - 5.5rem);
+  }
+}
+
+/* Mobile responsiveness (legacy class hooks) */
 @media (max-width: 768px) {
   .info-panel {
     position: fixed;
@@ -94,14 +230,7 @@ button:focus,
     height: 100%;
     z-index: 50;
   }
-  
-  .quick-access-panel {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    max-width: 200px;
-  }
-  
+
   .controls-guide {
     display: none;
   }
