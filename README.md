@@ -6,6 +6,6 @@ the components that make a PC.
 1. Everything is located in the src file if you would like to run it locally.
 2. Here is the Vercel link if you would like to do a quick visit.
    
-https://3-dpc-rust.vercel.app/
+**Link: https://3-g8g9o4wqw-cyangsters-projects.vercel.app
 
 Enjoy!
